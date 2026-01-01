@@ -98,7 +98,7 @@ export default function DocumentView() {
   const handleDownload = async () => {
     try {
       const response = await axios.get(`${API}/documents/${id}/download`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
         responseType: 'blob'
       });
 
@@ -109,6 +109,7 @@ export default function DocumentView() {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
       
       toast.success("Document downloaded successfully");
     } catch (error) {
