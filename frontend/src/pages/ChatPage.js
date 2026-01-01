@@ -12,8 +12,9 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function export default function ChatPage({ user, token, onLogout })FUNCNAMEexport default function ChatPage({ user, token, onLogout })() {
+export default function ChatPage() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [messages, setMessages] = useState([
     {
       role: "assistant",
@@ -24,6 +25,29 @@ export default function export default function ChatPage({ user, token, onLogout
   const [input, setInput] = useState("");
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/me`, { withCredentials: true });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to fetch user');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -47,7 +71,7 @@ export default function export default function ChatPage({ user, token, onLogout
       const response = await axios.post(
         `${API}/chat`,
         { message: input },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true }
       );
       
       const assistantMessage = {
@@ -72,7 +96,7 @@ export default function export default function ChatPage({ user, token, onLogout
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex flex-col">
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar user={user} onLogout={handleLogout} />
       
       <div className="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col" data-testid="chat-page">
         <div className="mb-6">
@@ -82,7 +106,6 @@ export default function export default function ChatPage({ user, token, onLogout
           <p className="text-slate-600">Ask questions in natural language to find documents</p>
         </div>
 
-        {/* Messages Container */}
         <Card className="flex-1 glass border-white/50 mb-4 overflow-hidden flex flex-col">
           <CardContent className="p-6 flex-1 overflow-y-auto" style={{ maxHeight: 'calc(100vh - 300px)' }}>
             <div className="space-y-6">
@@ -167,7 +190,6 @@ export default function export default function ChatPage({ user, token, onLogout
           </CardContent>
         </Card>
 
-        {/* Input Form */}
         <Card className="glass border-white/50">
           <CardContent className="p-4">
             <form onSubmit={handleSend} className="flex gap-3">

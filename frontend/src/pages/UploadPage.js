@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,8 +13,9 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function export default function UploadPage({ user, token, onLogout })FUNCNAMEexport default function UploadPage({ user, token, onLogout })() {
+export default function UploadPage() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [file, setFile] = useState(null);
   const [formData, setFormData] = useState({
@@ -22,6 +23,29 @@ export default function export default function UploadPage({ user, token, onLogo
     document_type: "Memorandum",
     access_level: "Public"
   });
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/me`, { withCredentials: true });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to fetch user');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const documentTypes = [
     "Memorandum",
@@ -66,8 +90,8 @@ export default function export default function UploadPage({ user, token, onLogo
       uploadData.append('access_level', formData.access_level);
 
       await axios.post(`${API}/documents/upload`, uploadData, {
+        withCredentials: true,
         headers: {
-          Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data'
         }
       });
@@ -83,7 +107,7 @@ export default function export default function UploadPage({ user, token, onLogo
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar user={user} onLogout={handleLogout} />
       
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-testid="upload-page">
         <div className="mb-8">
