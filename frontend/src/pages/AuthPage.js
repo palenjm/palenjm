@@ -69,18 +69,18 @@ export default function AuthPage() {
         credentials: 'include'
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.detail || 'Registration failed');
+        throw new Error(data.detail || 'Registration failed');
       }
 
-      const data = await response.json();
       document.cookie = `session_token=${data.session_token}; path=/; max-age=${7*24*60*60}; SameSite=None; Secure`;
       
       toast.success("Registration successful!");
       window.location.href = '/dashboard';
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.message || 'Registration failed');
     } finally {
       setIsLoading(false);
     }
