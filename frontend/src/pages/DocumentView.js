@@ -64,7 +64,7 @@ export default function DocumentView() {
     setDeleting(true);
     try {
       await axios.delete(`${API}/documents/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        withCredentials: true
       });
       toast.success("Document deleted successfully");
       navigate('/dashboard');
