@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -13,13 +12,37 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function SearchPage({ user, token, onLogout }) {
+export default function SearchPage() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [query, setQuery] = useState("");
   const [searchMode, setSearchMode] = useState("hybrid");
   const [results, setResults] = useState([]);
   const [searching, setSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  const fetchUser = async () => {
+    try {
+      const response = await axios.get(`${API}/auth/me`, { withCredentials: true });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Failed to fetch user');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   const searchModes = [
     { value: "bm25", label: "BM25", icon: Zap, description: "Traditional keyword-based search", color: "bg-orange-500" },
@@ -42,7 +65,7 @@ export default function SearchPage({ user, token, onLogout }) {
       const response = await axios.post(
         `${API}/search`,
         { query, search_mode: searchMode },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { withCredentials: true }
       );
       
       setResults(response.data);
@@ -70,7 +93,7 @@ export default function SearchPage({ user, token, onLogout }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <Navbar user={user} onLogout={onLogout} />
+      <Navbar user={user} onLogout={handleLogout} />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8" data-testid="search-page">
         <div className="mb-8">
