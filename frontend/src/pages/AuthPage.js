@@ -72,8 +72,6 @@ export default function AuthPage() {
       if (!response.ok) {
         throw new Error(data.detail || 'Registration failed');
       }
-
-      document.cookie = `session_token=${data.session_token}; path=/; max-age=${7*24*60*60}; SameSite=None; Secure`;
       
       toast.success("Registration successful!");
       window.location.href = '/dashboard';
