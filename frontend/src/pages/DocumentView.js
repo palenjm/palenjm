@@ -134,16 +134,28 @@ export default function DocumentView({ user, token, onLogout }) {
               </div>
             </div>
             
-            {isOwner && (
-              <Button
-                variant="destructive"
-                onClick={() => setShowDeleteDialog(true)}
-                data-testid="delete-document-button"
-              >
-                <Trash2 className="w-4 h-4 mr-2" />
-                Delete
-              </Button>
-            )}
+            <div className="flex gap-2">
+              {canDownload && (
+                <Button
+                  variant="outline"
+                  onClick={handleDownload}
+                  data-testid="download-document-button"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download
+                </Button>
+              )}
+              {isOwner && (
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowDeleteDialog(true)}
+                  data-testid="delete-document-button"
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  Delete
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 
