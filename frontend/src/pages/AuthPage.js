@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { FileText, Search, Sparkles } from "lucide-react";
+import { FileText } from "lucide-react";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
@@ -23,7 +23,6 @@ export default function AuthPage() {
   });
 
   const handleGoogleLogin = () => {
-    // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     const redirectUrl = window.location.origin + '/dashboard';
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
   };
@@ -83,64 +82,32 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 animated-gradient">
-      <div className="w-full max-w-6xl grid md:grid-cols-2 gap-8 items-center">
-        <div className="text-white space-y-6">
-          <div className="flex items-center gap-3">
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center">
-              <FileText className="w-8 h-8" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold" style={{ fontFamily: 'Manrope' }}>DMRS</h1>
-              <p className="text-white/90 text-sm">NEMSU Document Management System</p>
-            </div>
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      <div className="w-full max-w-md">
+        {/* Logo and Title */}
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl mb-4 shadow-lg">
+            <FileText className="w-8 h-8 text-white" />
           </div>
-
-          <h2 className="text-3xl md:text-4xl font-bold leading-tight" style={{ fontFamily: 'Manrope' }}>
-            Intelligent Document Retrieval
-            <br />
-            <span className="text-white/80">Powered by AI</span>
-          </h2>
-
-          <p className="text-lg text-white/90">
-            Advanced semantic search with transformer-based models for faster, more relevant document discovery.
-          </p>
-
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <Search className="w-5 h-5 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-semibold">Smart Search</p>
-                <p className="text-sm text-white/80">BM25, Semantic, and Hybrid search modes</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Sparkles className="w-5 h-5 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-semibold">Natural Language Queries</p>
-                <p className="text-sm text-white/80">Ask questions in everyday language</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <FileText className="w-5 h-5 mt-1 flex-shrink-0" />
-              <div>
-                <p className="font-semibold">Secure Document Management</p>
-                <p className="text-sm text-white/80">Role-based access control for institutional records</p>
-              </div>
-            </div>
-          </div>
+          <h1 className="text-3xl font-bold mb-2" style={{ fontFamily: 'Manrope' }}>
+            DMRS
+          </h1>
+          <p className="text-slate-600">NEMSU Document Management System</p>
         </div>
 
-        <Card className="glass border-white/30" data-testid="auth-card">
-          <CardHeader>
-            <CardTitle style={{ fontFamily: 'Manrope' }}>Welcome to DMRS</CardTitle>
-            <CardDescription>Sign in with Google or create an account</CardDescription>
+        {/* Login Card */}
+        <Card className="glass border-white/50 shadow-xl" data-testid="auth-card">
+          <CardHeader className="text-center">
+            <CardTitle style={{ fontFamily: 'Manrope' }}>Welcome Back</CardTitle>
+            <CardDescription>Sign in to access your documents</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Google Login Button */}
             <Button
               onClick={handleGoogleLogin}
               className="w-full"
               variant="outline"
+              size="lg"
               data-testid="google-login-button"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -149,7 +116,7 @@ export default function AuthPage() {
                 <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
                 <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
               </svg>
-              Continue with Google (@nemsu.edu.ph)
+              Sign in with Google
             </Button>
 
             <div className="relative">
@@ -157,16 +124,18 @@ export default function AuthPage() {
                 <Separator />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-slate-500">Or</span>
+                <span className="bg-white px-2 text-slate-500">Or continue with</span>
               </div>
             </div>
 
+            {/* Tabs for Login/Register */}
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login" data-testid="login-tab">Login</TabsTrigger>
                 <TabsTrigger value="register" data-testid="register-tab">Register</TabsTrigger>
               </TabsList>
 
+              {/* Login Form */}
               <TabsContent value="login" className="mt-4">
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
@@ -196,6 +165,7 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full"
+                    size="lg"
                     disabled={isLoading}
                     data-testid="login-submit-button"
                   >
@@ -204,6 +174,7 @@ export default function AuthPage() {
                 </form>
               </TabsContent>
 
+              {/* Register Form */}
               <TabsContent value="register" className="mt-4">
                 <form onSubmit={handleRegister} className="space-y-4">
                   <div className="space-y-2">
@@ -271,6 +242,7 @@ export default function AuthPage() {
                   <Button
                     type="submit"
                     className="w-full"
+                    size="lg"
                     disabled={isLoading}
                     data-testid="register-submit-button"
                   >
@@ -281,6 +253,11 @@ export default function AuthPage() {
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Footer */}
+        <p className="text-center text-sm text-slate-500 mt-6">
+          Secure document management powered by AI
+        </p>
       </div>
     </div>
   );
