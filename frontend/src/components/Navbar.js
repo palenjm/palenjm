@@ -1,6 +1,13 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { FileText, LogOut, Home, Search, MessageSquare, Upload } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { FileText, LogOut, Home, Search, MessageSquare, Upload, User, Shield, ChevronDown } from "lucide-react";
 
 export default function Navbar({ user, onLogout }) {
   const navigate = useNavigate();
@@ -12,6 +19,10 @@ export default function Navbar({ user, onLogout }) {
     { path: "/chat", label: "Chat", icon: MessageSquare, testId: "nav-chat" },
     { path: "/upload", label: "Upload", icon: Upload, testId: "nav-upload" }
   ];
+
+  if (user?.role === 'Admin') {
+    navItems.push({ path: "/admin", label: "Admin", icon: Shield, testId: "nav-admin" });
+  }
 
   return (
     <nav className="glass border-b border-white/30 sticky top-0 z-50" data-testid="navbar">
