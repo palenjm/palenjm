@@ -263,7 +263,7 @@ async def register(user_data: UserRegister, response: Response):
     }
 
 @api_router.post("/auth/login")
-async def login(credentials: UserLogin):
+async def login(credentials: UserLogin, response: Response):
     user = await db.users.find_one({"email": credentials.email}, {"_id": 0})
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
@@ -279,6 +279,16 @@ async def login(credentials: UserLogin):
         "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
         "created_at": datetime.now(timezone.utc)
     })
+    
+    # Set cookie
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        max_age=7*24*60*60,
+        httponly=True,
+        samesite="none",
+        secure=True
+    )
     
     return {
         "session_token": session_token,
