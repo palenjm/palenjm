@@ -79,7 +79,29 @@ export default function DocumentView({ user, token, onLogout }) {
 
   if (!document) return null;
 
-  const isOwner = document.uploaded_by === user?.id;
+  const isOwner = document.uploaded_by === user?.user_id;
+  const canDownload = document.access_level === 'Public' || isOwner || user?.role === 'Admin';
+
+  const handleDownload = async () => {
+    try {
+      const response = await axios.get(`${API}/documents/${id}/download`, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: 'blob'
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', document.file_name);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      toast.success("Document downloaded successfully");
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to download document");
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
