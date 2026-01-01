@@ -63,16 +63,41 @@ export default function Navbar({ user, onLogout }) {
           </div>
 
           {/* User Menu */}
-          <div className="flex items-center gap-3">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium">{user?.name}</p>
-              <p className="text-xs text-slate-500">{user?.role}</p>
-            </div>
-            <Button variant="outline" onClick={onLogout} data-testid="logout-button">
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="gap-2" data-testid="user-menu-trigger">
+                {user?.picture ? (
+                  <img src={user.picture} alt={user.name} className="w-6 h-6 rounded-full" />
+                ) : (
+                  <User className="w-4 h-4" />
+                )}
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-medium">{user?.name}</p>
+                  <p className="text-xs text-slate-500">{user?.role}</p>
+                </div>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <div className="px-2 py-1.5">
+                <p className="text-sm font-medium">{user?.name}</p>
+                <p className="text-xs text-slate-500">{user?.email}</p>
+                {user?.designation && (
+                  <p className="text-xs text-slate-500 mt-1">{user.designation}</p>
+                )}
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')} data-testid="nav-profile">
+                <User className="w-4 h-4 mr-2" />
+                Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onLogout} data-testid="logout-button">
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </nav>
