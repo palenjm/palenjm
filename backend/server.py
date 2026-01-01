@@ -208,7 +208,7 @@ def perform_hybrid_search(query: str, documents: list) -> list:
 
 # Auth Routes
 @api_router.post("/auth/register")
-async def register(user_data: UserRegister):
+async def register(user_data: UserRegister, response: Response):
     # Validate email domain for non-admin
     if not user_data.email.endswith('@nemsu.edu.ph'):
         raise HTTPException(status_code=400, detail="Only @nemsu.edu.ph emails are allowed")
@@ -240,6 +240,16 @@ async def register(user_data: UserRegister):
         "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
         "created_at": datetime.now(timezone.utc)
     })
+    
+    # Set cookie
+    response.set_cookie(
+        key="session_token",
+        value=session_token,
+        max_age=7*24*60*60,
+        httponly=True,
+        samesite="none",
+        secure=True
+    )
     
     return {
         "session_token": session_token,
