@@ -21,29 +21,42 @@ import {
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function DocumentView({ user, token, onLogout }) {
+export default function DocumentView() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [document, setDocument] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
-    fetchDocument();
+    fetchData();
   }, [id]);
 
-  const fetchDocument = async () => {
+  const fetchData = async () => {
     try {
-      const response = await axios.get(`${API}/documents/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setDocument(response.data);
+      const [userRes, docRes] = await Promise.all([
+        axios.get(`${API}/auth/me`, { withCredentials: true }),
+        axios.get(`${API}/documents/${id}`, { withCredentials: true })
+      ]);
+      setUser(userRes.data);
+      setDocument(docRes.data);
     } catch (error) {
       toast.error(error.response?.data?.detail || "Failed to load document");
       navigate('/dashboard');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
 
