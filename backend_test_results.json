@@ -1,0 +1,78 @@
+{
+  "timestamp": "2026-01-01T15:16:37.176649",
+  "total_tests": 14,
+  "passed_tests": 13,
+  "success_rate": 92.85714285714286,
+  "test_details": [
+    {
+      "test": "User Registration",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Document Upload",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Get Documents List",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Get Dashboard Stats",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Stats Response Format",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "BM25 Search",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Semantic Search",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Hybrid Search",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Chat Interface",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Chat Response Format",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Document View",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Invalid Search Mode",
+      "success": true,
+      "details": ""
+    },
+    {
+      "test": "Unauthorized Access",
+      "success": false,
+      "details": "Expected 401, got 403 - {'detail': 'Not authenticated'}"
+    },
+    {
+      "test": "Document Deletion",
+      "success": true,
+      "details": ""
+    }
+  ]
+}
