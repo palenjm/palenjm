@@ -10,8 +10,9 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function Dashboard({ user, token, onLogout }) {
+export default function Dashboard() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
   const [stats, setStats] = useState(null);
   const [recentDocs, setRecentDocs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,21 +23,30 @@ export default function Dashboard({ user, token, onLogout }) {
 
   const fetchData = async () => {
     try {
-      const [statsRes, docsRes] = await Promise.all([
-        axios.get(`${API}/stats`, {
-          headers: { Authorization: `Bearer ${token}` }
-        }),
-        axios.get(`${API}/documents`, {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+      const [userRes, statsRes, docsRes] = await Promise.all([
+        axios.get(`${API}/auth/me`, { withCredentials: true }),
+        axios.get(`${API}/stats`, { withCredentials: true }),
+        axios.get(`${API}/documents`, { withCredentials: true })
       ]);
       
+      setUser(userRes.data);
       setStats(statsRes.data);
       setRecentDocs(docsRes.data.slice(0, 5));
     } catch (error) {
       toast.error("Failed to load dashboard data");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${API}/auth/logout`, {}, { withCredentials: true });
+      document.cookie = 'session_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout error:', error);
+      window.location.href = '/';
     }
   };
 
