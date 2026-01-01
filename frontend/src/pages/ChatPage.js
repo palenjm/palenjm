@@ -12,7 +12,7 @@ import { toast } from "sonner";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-export default function ChatPage({ user, token, onLogout }) {
+export default function export default function ChatPage({ user, token, onLogout })FUNCNAMEexport default function ChatPage({ user, token, onLogout })() {
   const navigate = useNavigate();
   const [messages, setMessages] = useState([
     {
