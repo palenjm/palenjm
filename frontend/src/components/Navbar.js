@@ -37,8 +37,8 @@ export default function Navbar({ user, onLogout }) {
               <FileText className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="font-bold text-lg" style={{ fontFamily: 'Manrope' }}>DMRS</h1>
-              <p className="text-xs text-slate-500">NEMSU</p>
+              <h1 className="font-bold text-lg" style={{ fontFamily: 'Manrope' }}>NEMSU DMRS</h1>
+              <p className="text-xs text-slate-500">Document Management</p>
             </div>
           </div>
 
