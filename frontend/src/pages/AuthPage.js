@@ -262,8 +262,8 @@ export default function AuthPage() {
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Secure document management powered by AI
+        <p className="text-center text-xs text-slate-600 mt-6">
+          © 2026 North Eastern Mindanao State University. All Rights Reserved.
         </p>
       </div>
     </div>
