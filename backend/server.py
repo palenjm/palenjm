@@ -646,6 +646,69 @@ async def get_all_documents_admin(admin_user: dict = Depends(require_admin)):
     documents = await db.documents.find({}, {"_id": 0, "content": 0, "file_content": 0}).to_list(1000)
     return documents
 
+# Document Type Management
+@api_router.get("/admin/document-types")
+async def get_document_types(admin_user: dict = Depends(require_admin)):
+    types = await db.document_types.find({}, {"_id": 0}).to_list(1000)
+    if not types:
+        # Return default types if none exist
+        default_types = [
+            {"name": "Memorandum", "active": True},
+            {"name": "BOR Resolution", "active": True},
+            {"name": "MOU", "active": True},
+            {"name": "Proposal Template", "active": True},
+            {"name": "Leave Form", "active": True},
+            {"name": "Office Order", "active": True},
+            {"name": "Policy", "active": True},
+            {"name": "Circular", "active": True},
+            {"name": "Official Communication", "active": True},
+            {"name": "Other", "active": True}
+        ]
+        return default_types
+    return types
+
+@api_router.post("/admin/document-types")
+async def add_document_type(type_name: dict, admin_user: dict = Depends(require_admin)):
+    name = type_name.get('name', '').strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="Document type name is required")
+    
+    # Check if already exists
+    existing = await db.document_types.find_one({"name": name}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=400, detail="Document type already exists")
+    
+    doc_type = {"name": name, "active": True}
+    await db.document_types.insert_one(doc_type)
+    return doc_type
+
+@api_router.delete("/admin/document-types/{type_name}")
+async def delete_document_type(type_name: str, admin_user: dict = Depends(require_admin)):
+    result = await db.document_types.delete_one({"name": type_name})
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Document type not found")
+    return {"message": "Document type deleted successfully"}
+
+@api_router.get("/document-types")
+async def get_active_document_types(current_user: dict = Depends(get_current_user)):
+    types = await db.document_types.find({"active": True}, {"_id": 0}).to_list(1000)
+    if not types:
+        # Return default types
+        default_types = [
+            {"name": "Memorandum", "active": True},
+            {"name": "BOR Resolution", "active": True},
+            {"name": "MOU", "active": True},
+            {"name": "Proposal Template", "active": True},
+            {"name": "Leave Form", "active": True},
+            {"name": "Office Order", "active": True},
+            {"name": "Policy", "active": True},
+            {"name": "Circular", "active": True},
+            {"name": "Official Communication", "active": True},
+            {"name": "Other", "active": True}
+        ]
+        return default_types
+    return types
+
 app.include_router(api_router)
 
 app.add_middleware(
