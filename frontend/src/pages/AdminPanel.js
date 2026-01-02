@@ -3,6 +3,7 @@ import axios from "axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,8 +24,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import Navbar from "@/components/Navbar";
-import { Shield, Users, FileText, Trash2, Edit } from "lucide-react";
+import { Shield, Users, FileText, Trash2, Edit, Plus, Settings } from "lucide-react";
 import { toast } from "sonner";
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -34,10 +43,13 @@ export default function AdminPanel() {
   const [user, setUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [documentTypes, setDocumentTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("users");
   const [editingUser, setEditingUser] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [showAddTypeDialog, setShowAddTypeDialog] = useState(false);
+  const [newTypeName, setNewTypeName] = useState("");
 
   useEffect(() => {
     fetchData();
@@ -45,15 +57,17 @@ export default function AdminPanel() {
 
   const fetchData = async () => {
     try {
-      const [userRes, usersRes, docsRes] = await Promise.all([
+      const [userRes, usersRes, docsRes, typesRes] = await Promise.all([
         axios.get(`${API}/auth/me`, { withCredentials: true }),
         axios.get(`${API}/admin/users`, { withCredentials: true }),
-        axios.get(`${API}/admin/documents`, { withCredentials: true })
+        axios.get(`${API}/admin/documents`, { withCredentials: true }),
+        axios.get(`${API}/admin/document-types`, { withCredentials: true })
       ]);
 
       setUser(userRes.data);
       setUsers(usersRes.data);
       setDocuments(docsRes.data);
+      setDocumentTypes(typesRes.data);
     } catch (error) {
       if (error.response?.status === 403) {
         toast.error("Admin access required");
@@ -118,6 +132,40 @@ export default function AdminPanel() {
     }
   };
 
+  const handleAddDocumentType = async () => {
+    if (!newTypeName.trim()) {
+      toast.error("Please enter a document type name");
+      return;
+    }
+
+    try {
+      await axios.post(
+        `${API}/admin/document-types`,
+        { name: newTypeName },
+        { withCredentials: true }
+      );
+      toast.success("Document type added successfully");
+      setNewTypeName("");
+      setShowAddTypeDialog(false);
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to add document type");
+    }
+  };
+
+  const handleDeleteDocumentType = async (typeName) => {
+    try {
+      await axios.delete(
+        `${API}/admin/document-types/${encodeURIComponent(typeName)}`,
+        { withCredentials: true }
+      );
+      toast.success("Document type deleted successfully");
+      fetchData();
+    } catch (error) {
+      toast.error(error.response?.data?.detail || "Failed to delete document type");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -142,11 +190,11 @@ export default function AdminPanel() {
               Admin Panel
             </h1>
           </div>
-          <p className="text-slate-600">Manage users and documents across the system</p>
+          <p className="text-slate-600">Complete system management and control</p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="glass border-white/50">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -194,17 +242,33 @@ export default function AdminPanel() {
               </div>
             </CardContent>
           </Card>
+
+          <Card className="glass border-white/50">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-slate-600 mb-1">Document Types</p>
+                  <p className="text-3xl font-bold" style={{ fontFamily: 'Manrope' }}>
+                    {documentTypes.length}
+                  </p>
+                </div>
+                <div className="w-14 h-14 bg-orange-500 rounded-2xl flex items-center justify-center">
+                  <Settings className="w-7 h-7 text-white" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6">
+        <div className="flex gap-2 mb-6 overflow-x-auto">
           <Button
             variant={activeTab === "users" ? "default" : "outline"}
             onClick={() => setActiveTab("users")}
             data-testid="admin-users-tab"
           >
             <Users className="w-4 h-4 mr-2" />
-            Users Management
+            Users
           </Button>
           <Button
             variant={activeTab === "documents" ? "default" : "outline"}
@@ -212,7 +276,15 @@ export default function AdminPanel() {
             data-testid="admin-documents-tab"
           >
             <FileText className="w-4 h-4 mr-2" />
-            Documents Management
+            Documents
+          </Button>
+          <Button
+            variant={activeTab === "types" ? "default" : "outline"}
+            onClick={() => setActiveTab("types")}
+            data-testid="admin-types-tab"
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Document Types
           </Button>
         </div>
 
@@ -295,7 +367,7 @@ export default function AdminPanel() {
         {activeTab === "documents" && (
           <Card className="glass border-white/50">
             <CardHeader>
-              <CardTitle style={{ fontFamily: 'Manrope' }}>Document Management</CardTitle>
+              <CardTitle style={{ fontFamily: 'Manrope' }}>Document Management (Full Access)</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
@@ -341,9 +413,49 @@ export default function AdminPanel() {
             </CardContent>
           </Card>
         )}
+
+        {/* Document Types Management */}
+        {activeTab === "types" && (
+          <Card className="glass border-white/50">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle style={{ fontFamily: 'Manrope' }}>Document Type Management</CardTitle>
+                <Button onClick={() => setShowAddTypeDialog(true)} data-testid="add-type-button">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Type
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {documentTypes.map((type) => (
+                  <Card key={type.name} className="border-slate-200">
+                    <CardContent className="p-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <FileText className="w-5 h-5 text-blue-600" />
+                          <span className="font-medium">{type.name}</span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleDeleteDocumentType(type.name)}
+                          className="text-red-600"
+                          data-testid={`delete-type-${type.name}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
-      {/* Delete Confirmation */}
+      {/* Delete User Confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -363,6 +475,38 @@ export default function AdminPanel() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Add Document Type Dialog */}
+      <Dialog open={showAddTypeDialog} onOpenChange={setShowAddTypeDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Document Type</DialogTitle>
+            <DialogDescription>
+              Create a new document type for the system
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="type-name">Document Type Name</Label>
+              <Input
+                id="type-name"
+                placeholder="e.g., Research Paper, Certificate, Report"
+                value={newTypeName}
+                onChange={(e) => setNewTypeName(e.target.value)}
+                data-testid="new-type-input"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddTypeDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddDocumentType} data-testid="confirm-add-type">
+              Add Type
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
