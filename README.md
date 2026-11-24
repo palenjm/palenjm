@@ -2,7 +2,7 @@
 
 - 👀 I’m interested in programming and software development  
 - 🌱 I’m currently learning programming and improving my coding skills  
-- 📫 How to reach me: palen@nemsu.edu.ph
+- 📫 How to reach me: palenjhonmark@gmail.com
 - ⚡ One line at a time
 
 <!---
